@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(HelloVulkan)
-add_executable(HelloVulkan src/main.cpp)
+add_executable(HelloVulkan src/main.cpp src/application.cpp src/window.cpp)
 
 # GLFW: https://www.glfw.org/docs/3.3/build_guide.html
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)                                # Disable build of glfw docs.

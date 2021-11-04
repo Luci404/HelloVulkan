@@ -1,22 +1,10 @@
-#include <iostream>
-
-#include <vulkan/vulkan.h>
-#include <glfw/glfw3.h>
-
-#include <glm/glm.hpp>
-#include <glm/gtx/string_cast.hpp>
+#include "application.h"
 
 int main(int argc, char* argv[])
 {
-	glfwInit();
+	HelloVulkan::Application app;
 
-	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-	GLFWwindow* window = glfwCreateWindow(1280, 720, "HelloVUlkan", nullptr, nullptr);
-
-	uint32_t extensionCount = 0;
-	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-
-	std::cout << extensionCount << std::endl;
+	app.Run();
 
 	return 0;
 }
