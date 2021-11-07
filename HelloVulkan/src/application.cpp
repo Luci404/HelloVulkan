@@ -8,7 +8,36 @@ namespace HelloVulkan
 	Application::Application()
 		: m_Window(1280, 720, "HelloVulkan")
 	{
+
+		// Enumerate supported extensions.
+		uint32_t extensionCount = 0;
+		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
+		std::vector<VkExtensionProperties> supportedExtensions(extensionCount);
+		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, supportedExtensions.data());
+
+		std::cout << "available extensions:\n";
+		for (const auto& extension : supportedExtensions) {
+			std::cout << '\t' << extension.extensionName << '\n';
+		}
+
+		// Enumerate available layers.
+		uint32_t layerCount;
+		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+		std::vector<VkLayerProperties> availableLayers(layerCount);
+		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+		std::cout << "available layers:\n";
+		for (const auto& layer : availableLayers) {
+			std::cout << '\t' << layer.layerName << '\n';
+		}
+
 		// Create vulkan instance
+		if (enableValidationLayers && !CheckValidationLayerSupport())
+		{
+			std::cout << "validation layers requested, but not available!" << std::endl;
+			return;
+		}
+
 		VkApplicationInfo appInfo{};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = "Hello Triangle";
@@ -21,28 +50,30 @@ namespace HelloVulkan
 		const char** glfwExtensions;
 		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
+		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
+		if (enableValidationLayers) extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+
 		VkInstanceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 		createInfo.pApplicationInfo = &appInfo;
-		createInfo.enabledExtensionCount = glfwExtensionCount;
-		createInfo.ppEnabledExtensionNames = glfwExtensions;
+		createInfo.enabledExtensionCount = extensions.size();
+		createInfo.ppEnabledExtensionNames = extensions.data();
 		createInfo.enabledLayerCount = 0;
+
+		if (enableValidationLayers) 
+		{
+			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+			createInfo.ppEnabledLayerNames = validationLayers.data();
+		}
+		else
+		{
+			createInfo.enabledLayerCount = 0;
+		}
 
 		if (vkCreateInstance(&createInfo, nullptr, &m_VulkanInstance) != VK_SUCCESS)
 		{
 			std::cout << "Failed to create vulkan instance" << std::endl;
 			return;
-		}
-
-		// Enumerate supported extensions.
-		uint32_t extensionCount = 0;
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
-		std::vector<VkExtensionProperties> extensions(extensionCount);
-		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
-
-		std::cout << "available extensions:\n";
-		for (const auto& extension : extensions) {
-			std::cout << '\t' << extension.extensionName << '\n';
 		}
 
 		// Get shader source
@@ -64,6 +95,32 @@ namespace HelloVulkan
 			glfwPollEvents();
 		}
 	}
+
+	bool Application::CheckValidationLayerSupport() {
+		uint32_t layerCount;
+		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+		std::vector<VkLayerProperties> availableLayers(layerCount);
+		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+		for (const char* layerName : validationLayers) {
+			bool layerFound = false;
+
+			for (const auto& layerProperties : availableLayers) {
+				if (strcmp(layerName, layerProperties.layerName) == 0) {
+					layerFound = true;
+					break;
+				}
+			}
+
+			if (!layerFound) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 
 	std::vector<char> Application::ReadFile(const std::string& filepath)
 	{

@@ -16,10 +16,23 @@ namespace HelloVulkan
 		void Run();
 
 	private:
+		bool CheckValidationLayerSupport();
+		
 		std::vector<char> ReadFile(const std::string& filepath);
 
 	private:
-		VkInstance m_VulkanInstance;
+		const std::vector<const char*> validationLayers = {
+			"VK_LAYER_KHRONOS_validation"
+		};
+
+
+		#ifdef NDEBUG
+		const bool enableValidationLayers = false;
+		#else
+		const bool enableValidationLayers = true;
+		#endif
+
 		Window m_Window;
+		VkInstance m_VulkanInstance;
 	};
 }
