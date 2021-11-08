@@ -152,6 +152,9 @@ namespace HelloVulkan
 			return;
 		}
 
+		// Graphics queue.
+		vkGetDeviceQueue(m_Device, indices.graphicsFamily.value(), 0, &m_GraphicsQueue);
+
 		// Get shader source.
 		const std::vector<char> fragSource = ReadFile("C:/Dev/HelloVulkan/HelloVulkan/assets/shaders/shader.frag.spv");
 		const std::vector<char> vertSource = ReadFile("C:/Dev/HelloVulkan/HelloVulkan/assets/shaders/shader.vert.spv");

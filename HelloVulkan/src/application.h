@@ -55,5 +55,6 @@ namespace HelloVulkan
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 		VkDevice m_Device;
+		VkQueue m_GraphicsQueue;
 	};
 }
