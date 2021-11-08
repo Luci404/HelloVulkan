@@ -461,7 +461,7 @@ namespace HelloVulkan
 			return;
 		}
 
-		// Create command pool
+		// Create command buffers
 		m_CommandBuffers.resize(m_SwapChainFramebuffers.size());
 
 		VkCommandBufferAllocateInfo allocInfo{};
@@ -486,7 +486,33 @@ namespace HelloVulkan
 				std::cout << "Failed to begin recording command buffer!" << std::endl;
 				return;
 			}
+
+			// Start a render pass
+			VkRenderPassBeginInfo renderPassInfo{};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+			renderPassInfo.renderPass = m_RenderPass;
+			renderPassInfo.framebuffer = m_SwapChainFramebuffers[i];
+			renderPassInfo.renderArea.offset = { 0, 0 };
+			renderPassInfo.renderArea.extent = m_SwapChainExtent;
+
+			VkClearValue clearColor = { {{0.0f, 0.0f, 0.0f, 1.0f}} };
+			renderPassInfo.clearValueCount = 1;
+			renderPassInfo.pClearValues = &clearColor;
+
+			vkCmdBeginRenderPass(m_CommandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+
+			vkCmdBindPipeline(m_CommandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, m_GraphicsPipeline);
+
+			vkCmdDraw(m_CommandBuffers[i], 3, 1, 0, 0);
+
+			vkCmdEndRenderPass(m_CommandBuffers[i]);
+
+			if (vkEndCommandBuffer(m_CommandBuffers[i]) != VK_SUCCESS) {
+				std::cout << "Failed to record command buffer!" << std::endl;
+				return;
+			}
 		}
+		
 	}
 	
 	Application::~Application()
