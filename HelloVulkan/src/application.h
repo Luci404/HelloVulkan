@@ -92,5 +92,6 @@ namespace HelloVulkan
 		VkPipeline m_GraphicsPipeline;
 
 		VkCommandPool m_CommandPool;
+		std::vector<VkCommandBuffer> m_CommandBuffers;
 	};
 }
