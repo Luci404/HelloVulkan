@@ -85,5 +85,7 @@ namespace HelloVulkan
 		std::vector<VkImageView> m_SwapChainImageViews;
 
 		VkSurfaceKHR m_Surface;
+
+		VkPipelineLayout m_PipelineLayout;
 	};
 }
