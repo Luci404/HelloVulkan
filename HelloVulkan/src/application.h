@@ -93,5 +93,10 @@ namespace HelloVulkan
 
 		VkCommandPool m_CommandPool;
 		std::vector<VkCommandBuffer> m_CommandBuffers;
+
+		VkSemaphore m_ImageAvailableSemaphore;
+		VkSemaphore m_RenderFinishedSemaphore;
+
+		uint32_t m_CurrentFrame = 0;
 	};
 }

@@ -5,6 +5,9 @@
 #include <set>
 #include <algorithm>
 
+#define HELLOVULKAN_MAX_FRAMES_IN_FLIGHT 2;
+
+
 namespace HelloVulkan
 {
 	Application::Application()
@@ -276,12 +279,22 @@ namespace HelloVulkan
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
 
+		VkSubpassDependency dependency{};
+		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependency.dstSubpass = 0;
+		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.srcAccessMask = 0;
+		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
 		VkRenderPassCreateInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
 		renderPassInfo.attachmentCount = 1;
 		renderPassInfo.pAttachments = &colorAttachment;
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
+		renderPassInfo.dependencyCount = 1;
+		renderPassInfo.pDependencies = &dependency;
 
 		if (vkCreateRenderPass(m_Device, &renderPassInfo, nullptr, &m_RenderPass) != VK_SUCCESS) {
 			std::cout << "Failed to create render pass!" << std::endl;
@@ -512,11 +525,23 @@ namespace HelloVulkan
 				return;
 			}
 		}
+
+		// Create semaphores
+		VkSemaphoreCreateInfo semaphoreInfo{};
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		if (vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_ImageAvailableSemaphore) != VK_SUCCESS ||
+			vkCreateSemaphore(m_Device, &semaphoreInfo, nullptr, &m_RenderFinishedSemaphore) != VK_SUCCESS) {
+			std::cout << "Failed to create semaphores!" << std::endl;
+			return;
+		}
 		
 	}
 	
 	Application::~Application()
 	{
+
+
 		vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
 
 		for (auto framebuffer : m_SwapChainFramebuffers) {
@@ -551,6 +576,46 @@ namespace HelloVulkan
 		while (!glfwWindowShouldClose(m_Window))
 		{
 			glfwPollEvents();
+
+			// Draw frame
+			uint32_t imageIndex;
+			vkAcquireNextImageKHR(m_Device, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphore, VK_NULL_HANDLE, &imageIndex);
+
+			VkSubmitInfo submitInfo{};
+			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+			VkSemaphore waitSemaphores[] = { m_ImageAvailableSemaphore };
+			VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+			submitInfo.waitSemaphoreCount = 1;
+			submitInfo.pWaitSemaphores = waitSemaphores;
+			submitInfo.pWaitDstStageMask = waitStages;
+			submitInfo.commandBufferCount = 1;
+			submitInfo.pCommandBuffers = &m_CommandBuffers[imageIndex];
+
+			VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphore };
+			submitInfo.signalSemaphoreCount = 1;
+			submitInfo.pSignalSemaphores = signalSemaphores;
+
+			if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+				std::cout << "Failed to submit draw command buffer!" << std::endl;
+				return;
+			}
+
+			VkPresentInfoKHR presentInfo{};
+			presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+			presentInfo.waitSemaphoreCount = 1;
+			presentInfo.pWaitSemaphores = signalSemaphores;
+
+			VkSwapchainKHR swapChains[] = { m_SwapChain };
+			presentInfo.swapchainCount = 1;
+			presentInfo.pSwapchains = swapChains;
+
+			presentInfo.pImageIndices = &imageIndex;
+
+			vkQueuePresentKHR(m_PresentQueue, &presentInfo);
+
+			m_CurrentFrame = (m_CurrentFrame + 1) % HELLOVULKAN_MAX_FRAMES_IN_FLIGHT;
 		}
 	}
 
