@@ -90,5 +90,7 @@ namespace HelloVulkan
 		VkRenderPass m_RenderPass;
 		VkPipelineLayout m_PipelineLayout;
 		VkPipeline m_GraphicsPipeline;
+
+		VkCommandPool m_CommandPool;
 	};
 }

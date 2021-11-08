@@ -443,13 +443,28 @@ namespace HelloVulkan
 			framebufferInfo.layers = 1;
 
 			if (vkCreateFramebuffer(m_Device, &framebufferInfo, nullptr, &m_SwapChainFramebuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create framebuffer!");
+				std::cout << "Failed to create framebuffer!" << std::endl;
+				return;
 			}
+		}
+
+		// Create command pool
+		//QueueFamilyIndices queueFamilyIndices = FindQueueFamilies(m_PhysicalDevice);
+
+		VkCommandPoolCreateInfo poolInfo{};
+		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		poolInfo.queueFamilyIndex = indices.graphicsFamily.value();
+		poolInfo.flags = 0; // Optional
+
+		if (vkCreateCommandPool(m_Device, &poolInfo, nullptr, &m_CommandPool) != VK_SUCCESS) {
+			std::cout << "Failed to create command pool!" << std::endl;
 		}
 	}
 	
 	Application::~Application()
 	{
+		vkDestroyCommandPool(m_Device, m_CommandPool, nullptr);
+
 		for (auto framebuffer : m_SwapChainFramebuffers) {
 			vkDestroyFramebuffer(m_Device, framebuffer, nullptr);
 		}
