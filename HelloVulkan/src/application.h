@@ -86,6 +86,7 @@ namespace HelloVulkan
 
 		VkSurfaceKHR m_Surface;
 
+		VkRenderPass m_RenderPass;
 		VkPipelineLayout m_PipelineLayout;
 	};
 }
