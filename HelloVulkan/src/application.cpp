@@ -527,6 +527,7 @@ namespace HelloVulkan
 		m_ImageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		m_RenderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHT);
 		m_InFlightFences.resize(MAX_FRAMES_IN_FLIGHT);
+		m_ImagesInFlight.resize(m_SwapChainImages.size(), VK_NULL_HANDLE);
 
 		VkSemaphoreCreateInfo semaphoreInfo{};
 		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -593,10 +594,14 @@ namespace HelloVulkan
 
 			// Draw frame
 			vkWaitForFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame], VK_TRUE, UINT64_MAX);
-			vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame]);
 
 			uint32_t imageIndex;
 			vkAcquireNextImageKHR(m_Device, m_SwapChain, UINT64_MAX, m_ImageAvailableSemaphores[m_CurrentFrame], VK_NULL_HANDLE, &imageIndex);
+
+			if (m_ImagesInFlight[imageIndex] != VK_NULL_HANDLE) {
+				vkWaitForFences(m_Device, 1, &m_ImagesInFlight[imageIndex], VK_TRUE, UINT64_MAX);
+			}
+			m_ImagesInFlight[imageIndex] = m_InFlightFences[m_CurrentFrame];
 
 			VkSubmitInfo submitInfo{};
 			submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -612,6 +617,8 @@ namespace HelloVulkan
 			VkSemaphore signalSemaphores[] = { m_RenderFinishedSemaphores[m_CurrentFrame] };
 			submitInfo.signalSemaphoreCount = 1;
 			submitInfo.pSignalSemaphores = signalSemaphores;
+
+			vkResetFences(m_Device, 1, &m_InFlightFences[m_CurrentFrame]);
 
 			if (vkQueueSubmit(m_GraphicsQueue, 1, &submitInfo, m_InFlightFences[m_CurrentFrame]) != VK_SUCCESS) {
 				std::cout << "Failed to submit draw command buffer!" << std::endl;

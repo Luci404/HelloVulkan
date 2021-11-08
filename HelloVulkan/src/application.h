@@ -97,6 +97,7 @@ namespace HelloVulkan
 		std::vector<VkSemaphore> m_ImageAvailableSemaphores;
 		std::vector<VkSemaphore> m_RenderFinishedSemaphores;
 		std::vector<VkFence> m_InFlightFences;
+		std::vector<VkFence> m_ImagesInFlight;
 		uint32_t m_CurrentFrame = 0;
 
 		const int MAX_FRAMES_IN_FLIGHT = 2;
