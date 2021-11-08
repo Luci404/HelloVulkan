@@ -80,6 +80,7 @@ namespace HelloVulkan
 		VkSwapchainKHR m_SwapChain;
 		VkFormat m_SwapChainImageFormat;
 		VkExtent2D m_SwapChainExtent;
+		std::vector<VkImageView> m_SwapChainImageViews;
 
 		VkSurfaceKHR m_Surface;
 	};

@@ -16,7 +16,7 @@ namespace HelloVulkan
 
 		m_Window = glfwCreateWindow(1280, 720, "HelloVulkan", nullptr, nullptr);
 
-		// Enumerate supported extensions.
+		// Enumerate supported extensions
 		uint32_t extensionCount = 0;
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 		std::vector<VkExtensionProperties> supportedExtensions(extensionCount);
@@ -27,7 +27,7 @@ namespace HelloVulkan
 			std::cout << '\t' << extension.extensionName << '\n';
 		}
 
-		// Enumerate available layers.
+		// Enumerate available layers
 		uint32_t layerCount;
 		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 		std::vector<VkLayerProperties> availableLayers(layerCount);
@@ -95,7 +95,7 @@ namespace HelloVulkan
 			return;
 		}
 
-		// Setup debug messenger.
+		// Setup debug messenger
 		if (enableValidationLayers)
 		{
 			VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo{};
@@ -107,7 +107,7 @@ namespace HelloVulkan
 			}
 		}
 		
-		// Select physical device.
+		// Select physical device
 		uint32_t deviceCount = 0;
 		vkEnumeratePhysicalDevices(m_VulkanInstance, &deviceCount, nullptr);
 
@@ -131,7 +131,7 @@ namespace HelloVulkan
 			return;
 		}
 
-		// Select logical device.
+		// Select logical device
 		QueueFamilyIndices indices = FindQueueFamilies(m_PhysicalDevice);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -232,7 +232,31 @@ namespace HelloVulkan
 		m_SwapChainImageFormat = surfaceFormat.format;
 		m_SwapChainExtent = extent;
 
-		// Get shader source.
+		// Create image views
+		m_SwapChainImageViews.resize(m_SwapChainImages.size());
+		for (size_t i = 0; i < m_SwapChainImages.size(); i++) {
+			VkImageViewCreateInfo createInfo{};
+			createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+			createInfo.image = m_SwapChainImages[i];
+			createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+			createInfo.format = m_SwapChainImageFormat;
+			createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+			createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			createInfo.subresourceRange.baseMipLevel = 0;
+			createInfo.subresourceRange.levelCount = 1;
+			createInfo.subresourceRange.baseArrayLayer = 0;
+			createInfo.subresourceRange.layerCount = 1;
+
+			if (vkCreateImageView(m_Device, &createInfo, nullptr, &m_SwapChainImageViews[i]) != VK_SUCCESS) {
+				std::cout << "Failed to create image views!" << std::endl;
+				return;
+			}
+		}
+
+		// Get shader source
 		const std::vector<char> fragSource = ReadFile("C:/Dev/HelloVulkan/HelloVulkan/assets/shaders/shader.frag.spv");
 		const std::vector<char> vertSource = ReadFile("C:/Dev/HelloVulkan/HelloVulkan/assets/shaders/shader.vert.spv");
 		std::cout << "Fragment shader source size: " << fragSource.size() << std::endl;
@@ -241,6 +265,10 @@ namespace HelloVulkan
 	
 	Application::~Application()
 	{
+		for (auto imageView : m_SwapChainImageViews) {
+			vkDestroyImageView(m_Device, imageView, nullptr);
+		}
+
 		vkDestroySwapchainKHR(m_Device, m_SwapChain, nullptr);
 
 		vkDestroyDevice(m_Device, nullptr);
