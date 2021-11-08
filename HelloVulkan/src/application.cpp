@@ -401,6 +401,27 @@ namespace HelloVulkan
 			return;
 		}
 
+		// Create graphics pipeline
+		VkGraphicsPipelineCreateInfo pipelineInfo{};
+		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+		pipelineInfo.stageCount = 2;
+		pipelineInfo.pStages = shaderStages;
+		pipelineInfo.pVertexInputState = &vertexInputInfo;
+		pipelineInfo.pInputAssemblyState = &inputAssembly;
+		pipelineInfo.pViewportState = &viewportState;
+		pipelineInfo.pRasterizationState = &rasterizer;
+		pipelineInfo.pMultisampleState = &multisampling;
+		pipelineInfo.pColorBlendState = &colorBlending;
+		pipelineInfo.layout = m_PipelineLayout;
+		pipelineInfo.renderPass = m_RenderPass;
+		pipelineInfo.subpass = 0;
+		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE; // Optional
+		pipelineInfo.basePipelineIndex = -1; // Optional
+
+		if (vkCreateGraphicsPipelines(m_Device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &m_GraphicsPipeline) != VK_SUCCESS) {
+			std::cout << "Failed to create graphics pipeline!" << std::endl;
+		}
+
 		vkDestroyShaderModule(m_Device, fragShaderModule, nullptr);
 		vkDestroyShaderModule(m_Device, vertShaderModule, nullptr);
 	}
@@ -408,6 +429,7 @@ namespace HelloVulkan
 	Application::~Application()
 	{
 		vkDestroyRenderPass(m_Device, m_RenderPass, nullptr);
+		vkDestroyPipeline(m_Device, m_GraphicsPipeline, nullptr);
 		vkDestroyPipelineLayout(m_Device, m_PipelineLayout, nullptr);
 
 		for (auto imageView : m_SwapChainImageViews) {
