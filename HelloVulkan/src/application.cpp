@@ -6,8 +6,13 @@
 namespace HelloVulkan
 {
 	Application::Application()
-		: m_Window(1280, 720, "HelloVulkan")
 	{
+		// GLFW
+		glfwInit();
+		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+		glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+		m_Window = glfwCreateWindow(1280, 720, "HelloVulkan", nullptr, nullptr);
 
 		// Enumerate supported extensions.
 		uint32_t extensionCount = 0;
@@ -155,6 +160,23 @@ namespace HelloVulkan
 		// Graphics queue.
 		vkGetDeviceQueue(m_Device, indices.graphicsFamily.value(), 0, &m_GraphicsQueue);
 
+		// Surface.
+		/*VkWin32SurfaceCreateInfoKHR createInfo{};
+		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+		createInfo.hwnd = glfwGetWin32Window(window);
+		createInfo.hinstance = GetModuleHandle(nullptr);
+
+		if (vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, &surface) != VK_SUCCESS) {
+			std::cout << "Failed to create window surface!" << std::endl;
+			return;
+		}*/
+
+		if (glfwCreateWindowSurface(m_VulkanInstance, m_Window, nullptr, &m_Surface) != VK_SUCCESS)
+		{
+			std::cout << "Failed to create window surface!" << std::endl;
+			return;
+		}
+
 		// Get shader source.
 		const std::vector<char> fragSource = ReadFile("C:/Dev/HelloVulkan/HelloVulkan/assets/shaders/shader.frag.spv");
 		const std::vector<char> vertSource = ReadFile("C:/Dev/HelloVulkan/HelloVulkan/assets/shaders/shader.vert.spv");
@@ -170,12 +192,16 @@ namespace HelloVulkan
 			DestroyDebugUtilsMessengerEXT(m_VulkanInstance, m_DebugMessenger, nullptr);
 		}
 
+		vkDestroySurfaceKHR(m_VulkanInstance, m_Surface, nullptr);
 		vkDestroyInstance(m_VulkanInstance, nullptr);
+
+		glfwDestroyWindow(m_Window);
+		glfwTerminate();
 	}
 
 	void Application::Run()
 	{
-		while (!m_Window.ShouldClose())
+		while (!glfwWindowShouldClose(m_Window))
 		{
 			glfwPollEvents();
 		}

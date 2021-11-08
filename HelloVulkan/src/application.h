@@ -4,8 +4,9 @@
 #include <string>
 #include <optional>
 
-#include "window.h"
+#define VK_USE_PLATFORM_WIN32_KHR
 #include "vulkan/vulkan.h"
+#include <GLFW/glfw3.h>
 
 namespace HelloVulkan
 {
@@ -50,11 +51,14 @@ namespace HelloVulkan
 		const bool enableValidationLayers = true;
 		#endif
 
-		Window m_Window;
+		GLFWwindow* m_Window;
+
 		VkInstance m_VulkanInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
 		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 		VkDevice m_Device;
 		VkQueue m_GraphicsQueue;
+
+		VkSurfaceKHR m_Surface;
 	};
 }
