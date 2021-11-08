@@ -53,5 +53,7 @@ namespace HelloVulkan
 		Window m_Window;
 		VkInstance m_VulkanInstance;
 		VkDebugUtilsMessengerEXT m_DebugMessenger;
+		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+		VkDevice m_Device;
 	};
 }
