@@ -2,12 +2,22 @@
 
 #include <vector>
 #include <string>
+#include <optional>
 
 #include "window.h"
 #include "vulkan/vulkan.h"
 
 namespace HelloVulkan
 {
+	struct QueueFamilyIndices {
+		std::optional<uint32_t> graphicsFamily;
+	
+		bool isComplete() {
+			return graphicsFamily.has_value();
+		}
+	};
+
+
 	class Application
 	{
 	public:
@@ -18,6 +28,10 @@ namespace HelloVulkan
 	private:
 		bool CheckValidationLayerSupport();
 		
+		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
+
+		bool IsDeviceSuitable(VkPhysicalDevice device);
+
 		void PopulateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
 		VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT* pDebugMessenger);
 		void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);

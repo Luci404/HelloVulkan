@@ -81,7 +81,7 @@ namespace HelloVulkan
 			return;
 		}
 
-		// Setup debug messenger
+		// Setup debug messenger.
 		if (enableValidationLayers)
 		{
 			VkDebugUtilsMessengerCreateInfoEXT debugMessengerCreateInfo{};
@@ -92,7 +92,34 @@ namespace HelloVulkan
 				return;
 			}
 		}
-		// Get shader source
+		
+		// Select physical device.
+		VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+		uint32_t deviceCount = 0;
+		vkEnumeratePhysicalDevices(m_VulkanInstance, &deviceCount, nullptr);
+
+		if (deviceCount == 0) {
+			std::cout << "Failed to find GPUs with Vulkan support" << std::endl;
+			return;
+		}
+
+		std::vector<VkPhysicalDevice> devices(deviceCount);
+		vkEnumeratePhysicalDevices(m_VulkanInstance, &deviceCount, devices.data());
+
+		for (const auto& device : devices) {
+			if (IsDeviceSuitable(device)) {
+				physicalDevice = device;
+				break;
+			}
+		}
+
+		if (physicalDevice == VK_NULL_HANDLE) {
+			std::cout << "Failed to find a suitable GPU!" << std::endl;
+			return;
+		}
+
+		// Get shader source.
 		const std::vector<char> fragSource = ReadFile("C:/Dev/HelloVulkan/HelloVulkan/assets/shaders/shader.frag.spv");
 		const std::vector<char> vertSource = ReadFile("C:/Dev/HelloVulkan/HelloVulkan/assets/shaders/shader.vert.spv");
 		std::cout << "Fragment shader source size: " << fragSource.size() << std::endl;
@@ -139,6 +166,47 @@ namespace HelloVulkan
 		}
 
 		return true;
+	}
+
+	QueueFamilyIndices Application::FindQueueFamilies(VkPhysicalDevice device)
+	{
+		QueueFamilyIndices indices;
+
+		uint32_t queueFamilyCount = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+		int i = 0;
+		for (const auto& queueFamily : queueFamilies) {
+			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+				indices.graphicsFamily = i;
+			}
+
+			if (indices.isComplete()) {
+				break;
+			}
+
+			i++;
+		}
+
+		return indices;
+	}
+
+	bool Application::IsDeviceSuitable(VkPhysicalDevice device)
+	{
+		/*VkPhysicalDeviceProperties deviceProperties;
+		VkPhysicalDeviceFeatures deviceFeatures;
+		vkGetPhysicalDeviceProperties(device, &deviceProperties);
+		vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+		return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
+			deviceFeatures.geometryShader;*/
+
+		QueueFamilyIndices indices = FindQueueFamilies(device);
+
+		return indices.isComplete();
 	}
 
 

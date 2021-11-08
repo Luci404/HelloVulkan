@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 # HelloVulkan
 project(HelloVulkan)
 file(GLOB HelloVulkanSource CONFIGURE_DEPENDS "HelloVulkan/src/*.h" "HelloVulkan/src/*.cpp")
+set (CMAKE_CXX_STANDARD 17)
 add_executable(HelloVulkan ${HelloVulkanSource})
 
 # GLFW: https://www.glfw.org/docs/3.3/build_guide.html
