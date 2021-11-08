@@ -50,6 +50,8 @@ namespace HelloVulkan
 		void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 		static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
 		
+		VkShaderModule CreateShaderModule(const std::vector<char>& code);
+
 		std::vector<char> ReadFile(const std::string& filepath);
 
 	private:
