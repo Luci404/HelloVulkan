@@ -58,6 +58,12 @@ namespace HelloVulkan
 		std::vector<VkPresentModeKHR> presentModes;
 	};
 
+	struct UniformBufferObject {
+		glm::mat4 model;
+		glm::mat4 view;
+		glm::mat4 proj;
+	};
+
 	class Application
 	{
 	public:
@@ -66,6 +72,16 @@ namespace HelloVulkan
 		void Run();
 
 	private:
+		void CreateDescriptorSetLayout();
+		void CreateGraphicsPipeline();
+		void CreateVertexBuffers();
+		void CreateIndexBuffers();
+		void CreateUniformBuffers();
+		void CreateDescriptorPool();
+		void CreateDescriptorSets();
+
+		void UpdateUniformBuffer(uint32_t currentImage);
+			
 		bool CheckValidationLayerSupport();
 		
 		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
@@ -125,6 +141,7 @@ namespace HelloVulkan
 		VkSurfaceKHR m_Surface;
 
 		VkRenderPass m_RenderPass;
+		VkDescriptorSetLayout m_DescriptorSetLayout;
 		VkPipelineLayout m_PipelineLayout;
 		VkPipeline m_GraphicsPipeline;
 
@@ -154,5 +171,11 @@ namespace HelloVulkan
 		VkDeviceMemory m_VertexBufferMemory;
 		VkBuffer m_IndexBuffer;
 		VkDeviceMemory m_IndexBufferMemory;
+	
+		std::vector<VkBuffer> m_UniformBuffers;
+		std::vector<VkDeviceMemory> m_UniformBuffersMemory;
+
+		VkDescriptorPool m_DescriptorPool;
+		std::vector<VkDescriptorSet> m_DescriptorSets;
 	};
 }
