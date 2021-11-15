@@ -87,11 +87,10 @@ namespace HelloVulkan
 		void CreateImageViews();
 		void CreateRenderPass();
 		void CreateDescriptorSetLayout();
-		void CreateCommandPool();
 		void CreateGraphicsPipeline();
 		void CreateFramebuffers();
-		void CreateCommandBuffers();
-		void CreateSyncObjects();
+		void CreateCommandPool();
+		void CreateDepthResources();
 		void CreateTextureImage();
 		void CreateTextureImageView();
 		void CreateTextureSampler();
@@ -100,6 +99,8 @@ namespace HelloVulkan
 		void CreateUniformBuffers();
 		void CreateDescriptorPool();
 		void CreateDescriptorSets();
+		void CreateCommandBuffers();
+		void CreateSyncObjects();
 
 		void UpdateUniformBuffer(uint32_t currentImage);
 			
@@ -109,7 +110,11 @@ namespace HelloVulkan
 		std::vector<const char*> GetRequiredExtensions();
 		bool IsDeviceSuitable(VkPhysicalDevice device);
 
+		VkFormat FindSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling, VkFormatFeatureFlags features);
+		VkFormat FindDepthFormat();
 
+		bool HasStencilComponent(VkFormat format);
+			
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
 		VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const 
@@ -220,6 +225,10 @@ namespace HelloVulkan
 		VkDeviceMemory m_TextureImageMemory;
 		VkImageView m_TextureImageView;
 		VkSampler m_TextureSampler;
+
+		VkImage m_DepthImage;
+		VkDeviceMemory m_DepthImageMemory;
+		VkImageView m_DepthImageView;
 
 	};
 }
