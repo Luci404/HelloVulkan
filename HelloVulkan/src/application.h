@@ -16,6 +16,7 @@ namespace HelloVulkan
 	struct Vertex {
 		glm::vec2 pos;
 		glm::vec3 color;
+		glm::vec2 texCoord;
 
 		static VkVertexInputBindingDescription GetBindingDescription() {
 			VkVertexInputBindingDescription bindingDescription{};
@@ -26,8 +27,8 @@ namespace HelloVulkan
 			return bindingDescription;
 		}
 
-		static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions() {
-			std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+		static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions() {
+			std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
 
 			attributeDescriptions[0].binding = 0;
 			attributeDescriptions[0].location = 0;
@@ -38,6 +39,11 @@ namespace HelloVulkan
 			attributeDescriptions[1].location = 1;
 			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
 			attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+			attributeDescriptions[2].binding = 0;
+			attributeDescriptions[2].location = 2;
+			attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[2].offset = offsetof(Vertex, texCoord);
 
 			return attributeDescriptions;
 		}
@@ -72,9 +78,20 @@ namespace HelloVulkan
 		void Run();
 
 	private:
+		void CreateInstance();
+		void SetupDebugMessenger();
+		void CreateSurface();
+		void SelectPhysicalDevice();
+		void CreateLogicalDevice();
+		void CreateSwapChain();
 		void CreateImageViews();
+		void CreateRenderPass();
 		void CreateDescriptorSetLayout();
+		void CreateCommandPool();
 		void CreateGraphicsPipeline();
+		void CreateFramebuffers();
+		void CreateCommandBuffers();
+		void CreateSyncObjects();
 		void CreateTextureImage();
 		void CreateTextureImageView();
 		void CreateTextureSampler();
@@ -89,8 +106,9 @@ namespace HelloVulkan
 		bool CheckValidationLayerSupport();
 		
 		QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
-
+		std::vector<const char*> GetRequiredExtensions();
 		bool IsDeviceSuitable(VkPhysicalDevice device);
+
 
 		bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 		SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
@@ -106,7 +124,7 @@ namespace HelloVulkan
 		VkCommandBuffer BeginSingleTimeCommands();
 		void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
 		
-		VkImageView CreateImageView(VkImage image, VkFormat format);
+		VkImageView CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
 
 		void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
@@ -171,10 +189,10 @@ namespace HelloVulkan
 		const int MAX_FRAMES_IN_FLIGHT = 2;
 
 		const std::vector<Vertex> m_Vertices = {
-			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}
+			{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},
+			{{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}},
+			{{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
+			{{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}, {1.0f, 1.0f}}
 		};
 
 		const std::vector<uint16_t> m_Indices = {
