@@ -20,6 +20,9 @@ include_directories("${CMAKE_SOURCE_DIR}/HelloVulkan/vendor/glm")
 # STB IMAGE
 include_directories("${CMAKE_SOURCE_DIR}/HelloVulkan/vendor/stb_image")  
 
+# TINY OBJ LOADER
+include_directories("${CMAKE_SOURCE_DIR}/HelloVulkan/vendor/tinyobjloader")  
+
 # Vulkan
 set(VULKAN_PATH "C:/VulkanSDK/1.2.170.0")                                             
 message(STATUS "Using manual specified path: ${VULKAN_PATH}")
