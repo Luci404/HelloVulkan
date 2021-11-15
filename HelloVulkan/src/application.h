@@ -72,9 +72,12 @@ namespace HelloVulkan
 		void Run();
 
 	private:
+		void CreateImageViews();
 		void CreateDescriptorSetLayout();
 		void CreateGraphicsPipeline();
 		void CreateTextureImage();
+		void CreateTextureImageView();
+		void CreateTextureSampler();
 		void CreateVertexBuffers();
 		void CreateIndexBuffers();
 		void CreateUniformBuffers();
@@ -103,6 +106,8 @@ namespace HelloVulkan
 		VkCommandBuffer BeginSingleTimeCommands();
 		void EndSingleTimeCommands(VkCommandBuffer commandBuffer);
 		
+		VkImageView CreateImageView(VkImage image, VkFormat format);
+
 		void CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 
 		void TransitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout);
@@ -189,5 +194,8 @@ namespace HelloVulkan
 	
 		VkImage m_TextureImage;
 		VkDeviceMemory m_TextureImageMemory;
+		VkImageView m_TextureImageView;
+		VkSampler m_TextureSampler;
+
 	};
 }
